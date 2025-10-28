@@ -1,0 +1,9 @@
+{
+	"name": "df-spotifyrohan",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "00e50cbc-cd48-4c29-a9cc-c7dab6e4c2c6",
+		"tenantId": "b251b388-20d5-47ec-824f-372d56dadb56"
+	}
+}
