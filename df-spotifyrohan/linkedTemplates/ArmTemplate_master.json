@@ -1,0 +1,84 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "df-spotifyrohan"
+		},
+		"Spotify_Azure_DL_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Spotify_Azure_DL'"
+		},
+		"Spotify_Azure_SqlDb_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'Spotify_Azure_SqlDb'"
+		},
+		"Spotify_Azure_DL_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://spotifystoragerohan.dfs.core.windows.net/"
+		},
+		"Spotify_Azure_SqlDb_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "rohanspotifyserver.database.windows.net"
+		},
+		"Spotify_Azure_SqlDb_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "spotifydbrohan"
+		},
+		"Spotify_Azure_SqlDb_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminrohan"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "df-spotifyrohan_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"Spotify_Azure_DL_accountKey": {
+						"value": "[parameters('Spotify_Azure_DL_accountKey')]"
+					},
+					"Spotify_Azure_SqlDb_password": {
+						"value": "[parameters('Spotify_Azure_SqlDb_password')]"
+					},
+					"Spotify_Azure_DL_properties_typeProperties_url": {
+						"value": "[parameters('Spotify_Azure_DL_properties_typeProperties_url')]"
+					},
+					"Spotify_Azure_SqlDb_properties_typeProperties_server": {
+						"value": "[parameters('Spotify_Azure_SqlDb_properties_typeProperties_server')]"
+					},
+					"Spotify_Azure_SqlDb_properties_typeProperties_database": {
+						"value": "[parameters('Spotify_Azure_SqlDb_properties_typeProperties_database')]"
+					},
+					"Spotify_Azure_SqlDb_properties_typeProperties_userName": {
+						"value": "[parameters('Spotify_Azure_SqlDb_properties_typeProperties_userName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
