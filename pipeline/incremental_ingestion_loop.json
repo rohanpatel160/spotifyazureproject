@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEach1",
+				"name": "ForEachSpotifyRohan",
 				"type": "ForEach",
 				"dependsOn": [],
 				"userProperties": [],
@@ -324,7 +324,7 @@
 				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "ForEach1",
+						"activity": "ForEachSpotifyRohan",
 						"dependencyConditions": [
 							"Failed",
 							"Skipped"
