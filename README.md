@@ -39,3 +39,6 @@ The Bronze Layer successfully stores raw Spotify data with CDC support and trigg
 <img width="1916" height="864" alt="image" src="https://github.com/user-attachments/assets/539a1865-3911-40db-bd54-77f16764050b" />
 <img width="1611" height="911" alt="image" src="https://github.com/user-attachments/assets/3aca14e1-38f4-4e72-97c8-34e40090afdc" />
 <img width="1918" height="866" alt="image" src="https://github.com/user-attachments/assets/16969775-ad8f-4eef-a11d-bf6bf734fe92" />
+
+### ON Failure Email Alert
+<img width="1515" height="732" alt="image" src="https://github.com/user-attachments/assets/95d8406b-12ab-4828-b9ea-6cdcdd8acb62" />
