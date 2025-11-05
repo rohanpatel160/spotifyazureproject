@@ -1,0 +1,15 @@
+# The main pipeline for spotifyrohan_dab
+resources:
+  pipelines:
+    spotifyrohan_dab_pipeline:
+      name: spotifyrohan_dab_pipeline
+      catalog: spotify_cata
+      schema: spotifyrohan_dab_${bundle.target}
+      serverless: true
+      storage: "dbfs:/pipelines/spotifyrohan_dab_pipeline"
+      libraries:
+        - notebook:
+            path: ./src/pipeline.ipynb
+
+      configuration:
+        bundle.sourcePath: ${workspace.file_path}/src
