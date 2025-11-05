@@ -42,3 +42,240 @@ The Bronze Layer successfully stores raw Spotify data with CDC support and trigg
 
 ### ON Failure Email Alert
 <img width="1515" height="732" alt="image" src="https://github.com/user-attachments/assets/95d8406b-12ab-4828-b9ea-6cdcdd8acb62" />
+
+### Silver Layer (Cleansing + Metadata-Driven Transformation)
+
+**Location:** src/silver/
+
+**Objective:** Transform raw ingested data from Bronze into a structured, deduplicated, and schema-evolved Silver layer.
+
+**Key Features**
+
+**Unity Catalog Metastore Setup**
+
+Created a managed Unity Catalog storage (West US 2 region)
+
+Configured new metastore in accounts.azuredatabricks.net linked to the same region
+
+Granted access via IAM → Storage Contributor to Databricks workspace identity
+
+Assigned Gmail account as metastore admin
+
+**Parameterized & Dynamic Notebooks**
+
+Used Jinja templating to dynamically build SQL queries based on metadata parameters
+
+Configurable parameters (table, schema, join type, etc.)
+
+Enabled fully reusable notebooks for all dimension/fact tables
+
+**Schema Evolution & Auto Loader**
+
+Implemented schema evolution with cloudFiles.schemaEvolutionMode = "addNewColumns"
+
+Configured Auto Loader for incremental data ingestion with checkpointing for idempotency
+
+Managed CDC and deduplication using Delta operations
+
+**Utility Functions**
+
+Created modular utilities in utils/transformations.py for:
+
+Dropping redundant columns
+
+Replacing special characters
+
+Flagging records by duration category
+
+Imported dynamically via system path setup for reuse
+
+**Data Quality & Performance**
+
+Handled deduplication, null handling, and consistency checks
+
+Wrote output to Delta format in the Silver zone (toTable("catalog.schema.table"))
+
+### Gold Layer (Business-Ready + Declarative Pipelines)
+
+**Objective:** Transform cleansed data into business-ready fact and dimension tables using Delta Live Tables (DLT).
+
+**Core Highlights**
+
+**DLT Declarative Pipelines**
+
+Configured via resources/spotifyrohan_dab.pipeline.yml
+
+Fully serverless, catalog-aware, and schema-scoped
+
+Enabled automated DAG generation with transformation lineage
+
+**Slowly Changing Dimensions (SCD Type 2)**
+
+Implemented Auto CDC logic in Gold using DLT declarative pipeline syntax
+
+Stored historical dimension records with effective-date logic
+
+Applied UPSERT for fact tables (transactional updates)
+
+**Reusable Components**
+
+Created Python utilities for shared transformations
+
+Added metadata-driven logic for schema and table handling
+
+Populated business views automatically in Gold zone
+
+**DLT Configuration**
+catalog: spotify_cata
+schema: gold
+storage: "dbfs:/pipelines/spotifyrohan_dab_pipeline"
+serverless: true
+libraries:
+  - notebook:
+      path: ./src/gold/rohanspotify_dlt/transformations/
+
+**Lineage Tracking**
+
+Automatic lineage visualization in DLT UI
+
+Business audit trail and end-to-end data flow traceable from Bronze → Gold
+
+### CI/CD & Environment Deployment (Dev → QA → Prod)**
+
+**Managed via:** databricks.yml and Asset Bundles
+
+Used Databricks Asset Bundles to automate deployment across environments
+
+Defined parameterized environment variables for catalog, schema, and workspace host
+
+bundle.sourcePath and bundle.target automatically inject the correct config at deploy time
+
+**Commands used:**
+databricks bundle validate -t dev
+databricks bundle deploy -t dev
+databricks bundle deploy -t qa
+databricks bundle deploy -t prod
+
+Each deployment linked to a unique workspace & Unity Catalog instance
+
+### Version Control & Git Integration
+
+Connected Databricks repo to GitHub using Linked Service
+
+Created dedicated repo folder: spotifyazureproject
+
+**Branched workflow:**
+feature/<component_name> → rohan → main
+
+Commits handled through Databricks Git UI → “Commit & Push”
+
+Automated YAML + Python sync to GitHub repo
+
+### Key Learnings & Highlights
+
+End-to-end Azure Data Engineering solution
+
+Advanced Databricks Unity Catalog, DLT, Auto Loader, SCD Type 2
+
+Full CI/CD automation via Asset Bundles
+
+Metadata-driven transformation using Jinja + Python
+
+Data governance and security via Unity Catalog
+
+Real-time data quality monitoring and schema evolution
+
+Modular, reusable pipeline design
+
+### Setup Instructions
+
+Clone this repository into your Databricks workspace:
+
+git clone https://github.com/<yourusername>/spotifyazureproject.git
+cd spotifyazureproject/azuredabrohan
+
+**Initialize and deploy:**
+
+databricks bundle validate -t dev
+databricks bundle deploy -t dev
+
+**Environment targets:**
+
+dev → Development workspace (default)
+qa → Testing environment
+prod → Production environment
+
+To visualize the DLT pipeline, navigate to
+Workflows → Delta Live Tables → spotifyrohan_dab_pipeline
+
+### Summary
+
+This project showcases advanced Azure Data Engineering & Databricks capabilities:
+
+Scalable multi-layer architecture (Bronze → Silver → Gold)
+
+Parameterized transformations using metadata & Jinja
+
+Fully automated CI/CD with Databricks Asset Bundles
+
+End-to-end governance with Unity Catalog and Azure IAM
+
+Real-time orchestration using ADF + Logic Apps
+
+**Outcome:** Production-grade, reusable, and governed data platform design demonstrating advanced skills in Azure Data Factory, Databricks, and modern data engineering practices.
+
+<img width="1919" height="908" alt="image" src="https://github.com/user-attachments/assets/69f677a2-bd39-4db7-873d-c017f9a1b50a" />
+
+<img width="1870" height="620" alt="image" src="https://github.com/user-attachments/assets/3d704f78-fb04-444e-b782-1e0f7323b5ad" />
+
+<img width="1862" height="915" alt="image" src="https://github.com/user-attachments/assets/8e2f9d5f-37c5-4730-a207-afedb96449f1" />
+
+<img width="997" height="460" alt="1" src="https://github.com/user-attachments/assets/e99269e0-4a82-446e-ae8d-02b1e5cccc82" />
+
+### Architecture Overview
+
+               ┌─────────────────────────────┐
+               │ Azure Data Factory (ADF)    │
+               │  - Ingest raw data from     │
+               │    APIs / DB / Storage      │
+               └──────────────┬──────────────┘
+                              │
+                              ▼
+                 ┌────────────────────────┐
+                 │     Bronze Layer        │
+                 │  (Raw landing in ADLS)  │
+                 │  - Incremental loads    │
+                 │  - CDC & Backfills      │
+                 └────────────┬────────────┘
+                              │
+                              ▼
+                 ┌────────────────────────┐
+                 │     Silver Layer        │
+                 │  (Cleansed + Structured)│
+                 │  - Auto Loader          │
+                 │  - Schema Evolution     │
+                 │  - Jinja Parameterized  │
+                 └────────────┬────────────┘
+                              │
+                              ▼
+                 ┌────────────────────────┐
+                 │      Gold Layer         │
+                 │  (Business-Ready DLT)   │
+                 │  - SCD Type 2           │
+                 │  - Fact & Dimension     │
+                 │  - Lineage Tracking     │
+                 └────────────┬────────────┘
+                              │
+                              ▼
+           ┌────────────────────────────────────┐
+           │  Azure SQL DB / Power BI Reports   │
+           │  - Analytics & Visualization       │
+           └────────────────────────────────────┘
+
+               ┌────────────────────────────────┐
+               │ Azure Logic Apps & Asset Bundles │
+               │  - CI/CD: Dev → QA → Prod       │
+               │  - Alerts, validation, & deploy │
+               └────────────────────────────────┘
+
+
